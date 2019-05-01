@@ -12,7 +12,7 @@ import { createStackNavigator, createAppContainer } from "react-navigation";
 import {Signup,OtpVerification} from './src/components';
 
 const AppNavigator = createStackNavigator({
-  Signup: { screen: Signup},
+  Signup: { screen: Signup, navigationOptions: { header: null }},
   OtpVerification: { screen: OtpVerification},
 
 },
