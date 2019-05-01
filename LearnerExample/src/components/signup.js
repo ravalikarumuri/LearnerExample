@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity , TextInput, Image} from 'react-native';
+import { View, Text, TouchableOpacity , TextInput, Image, ActivityIndicator, SafeAreaView, Alert} from 'react-native';
 var dismissKeyboard = require('dismissKeyboard');
 import {OtpVerification} from './'
 
@@ -14,7 +14,14 @@ class Signup extends React.Component{
     nameValidation: false,
     emailValidation: false,
     mobileValidation: false,
-    passwordValidation: false
+    passwordValidation: false,
+    spinnerVisible: false,
+    validInputPassword: false,
+    validInputName: false,
+    validInputEmail: false,
+    validInputMobile: false
+
+
   }
   passwordToggle() {
     this.setState({ showpwd: !this.state.showpwd })
@@ -22,6 +29,21 @@ class Signup extends React.Component{
 
   // Toggles password display
   submit() {
+    dismissKeyboard()
+    console.log("####@@@@@");
+    if(this.firstNameValid())
+    {
+      console.log("firstNameValid");
+      if(this.mobileValid()){
+        console.log("mobileValid");
+        if(this.emailValid()){
+          console.log("emailValid",this.state.password.length);
+          if(this.passwordValid()){
+            this.signup()
+          }
+        }
+      }
+    }
   }
   pwdHideAndShow() {
     if (this.state.showpwd == false) {
@@ -42,46 +64,48 @@ class Signup extends React.Component{
   };
 
   firstNameValid() {
-    if (this.state.name != '') {
       if (!this.validateName(this.state.name)) {
-        this.setState({ nameValidation: true });
-        this.setState({ errorMessage: "Please enter a valid name" })
+        this.setState({ nameValidation: true,  errorMessage: "Please enter a valid name", validInputName: false });
+        return false
       }
       else {
-        this.setState({ nameValidation: false });
+        this.setState({ nameValidation: false, validInputName: true });
+        return true
       }
-    }
   }
 
   emailValid() {
-  if (!this.state.emailId == '' ) {
     if (!this.validateEmail(this.state.emailId)) {
-      this.setState({ emailValidation: true, errorMessage: "Enter your valid Email ID" })
+      this.setState({ emailValidation: true, errorMessage: "Enter your valid Email ID", validInputEmail: false })
+      return false
       console.log('Enter your valid Email Address');
     } else {
-      this.setState({ emailValidation: false });
+      this.setState({ emailValidation: false, validInputEmail: true });
+      return true
     }
-  }
 }
 
 mobileValid(){
-  if(this.state.mobileNumber.length != 10 && this.state.mobileNumber!=''){
-    this.setState({ mobileValidation: true, errorMessage: "Enter your valid mobile number"})
+  if(this.state.mobileNumber.length < 10 ){
+    this.setState({ mobileValidation: true, errorMessage: "Enter your valid mobile number", validInputMobile: false})
+    return false
   }
   else{
-      this.setState({ mobileValidation: false });
+      this.setState({ mobileValidation: false, validInputMobile: true });
+      return true
   }
 }
 
 passwordValid() {
-if (!this.state.password == '') {
   if (!this.validatePasswordStrength(this.state.password)) {
-    this.setState({ passwordValidation: true , errorMessage:"Password must contain at least 8 characters"});
+    this.setState({ passwordValidation: true , errorMessage:"Password must contain at least 8 characters", validInputPassword: false});
+    return false
     console.log("Password must contain at least 8 characters");
   } else {
-    this.setState({ passwordValidation: false });
+    console.log("no errror");
+    this.setState({ passwordValidation: false, validInputPassword: true });
+    return true
   }
-}
 }
 
   validateEmail = (email) => {
@@ -104,17 +128,119 @@ if (!this.state.password == '') {
 
   validatePasswordStrength(password) {
 
-    if(this.state.password.length < 8 && this.state.mobileNumber==''){
+    if(this.state.password.length < 8 ||this.state.mobileNumber==''){
+      console.log("###@");
       return false
     }
     else{
+      console.log("####!");
       return true
     }
 
   }
 
+  displayError() {
+        this.setState({ spinnerVisibility: false });
+        Alert.alert(
+          'Error',
+          'Sorry, something went wrong: Please try again later...',
+          [
+            { text: 'OK' },
+          ],
+          { cancelable: false }
+        )
+      }
+
+  spinnerComponent() {
+    if (this.state.spinnerVisible) {
+      return (
+        <View style={{ flex: 1, backgroundColor: 'transparent', position: 'absolute', left: 0, top: 0, bottom: 0, right: 0, alignItems: "center", justifyContent: "center" }}>
+        <View style={{ flexDirection: 'row', overflow: 'hidden', borderRadius: 16,backgroundColor: "grey" }}>
+            <ActivityIndicator color='#ffffff' style={{ padding: 4 }} visibility={true} animating={this.state.spinnerVisible} />
+                 <Text style={{ fontSize: 16, color: '#FFFFFF', padding: 4, marginRight: 4 }}>Signing up, please wait...</Text>
+        </View>
+        </View>
+      )
+    }
+  }
+
+  signup(){
+    dismissKeyboard()
+    console.log("##@data***");
+    this.setState({ spinnerVisible: true })
+    var data = new FormData()
+      data.append('name', this.state.name)
+      data.append('mobileNumber', this.state.mobileNumber)
+      data.append('email', this.state.email)
+      data.append('password', this.state.password)
+      data.append('deviceType', 'android')
+      data.append('deviceToken', 'swdsssss22sf')
+      data.append('regType', 'direct')
+      fetch("http://testingmadesimple.org/playard/api/service/signup", {
+            method: 'post',
+            body: data
+          })
+          .then((response) => response.json())
+          .then((responseData) => {
+            console.log('Fetch Success==================');
+            console.log(responseData);
+            this.setState({ spinnerVisible: false })
+          if (responseData.status == '1') {
+
+
+          }
+          else if(responseData.status == '3'){
+            Alert.alert(
+              'Error',
+              'Sorry, Mobile number already exists, Please try with another...',
+              [
+                { text: 'OK' },
+              ],
+              { cancelable: false }
+            )
+          }
+          else if(responseData.status == '4'){
+            Alert.alert(
+              'Error',
+              'Sorry, Email Id already exists, Please try with another...',
+              [
+                { text: 'OK' },
+              ],
+              { cancelable: false }
+            )
+          }
+          else if(responseData.status == '2'){
+            Alert.alert(
+              'Error',
+              'Sorry, Server is slow, Please try later...',
+              [
+                { text: 'OK' },
+              ],
+              { cancelable: false }
+            )
+          }
+          else if(responseData.status == '0'){
+            Alert.alert(
+              'Error',
+              'Sorry, Please fill all the fields...',
+              [
+                { text: 'OK' },
+              ],
+              { cancelable: false }
+            )
+          }
+
+          })
+          .catch((error) => {
+            this.setState({ spinnerVisible: false })
+            this.displayError();
+          })
+          .done();
+  }
+
   render(){
     return(
+      <SafeAreaView style={{ flex: 1}}>
       <View style={{ flex: 1, marginTop:0, borderWidth: 5}}>
         <View style={{ flex: 1, marginHorizontal:30}}>
             <View style={{ flex: 1.5, borderWidth: 0}}>
@@ -214,7 +340,6 @@ if (!this.state.password == '') {
                           style={{ height: 70, flexWrap: 'wrap', color: 'black', fontSize: 20  }}
                           selectionColor={'#000000'}
                           returnKeyType='next'
-                          maxLength={20}
                           enablesReturnKeyAutomatically={true}
                           underlineColorAndroid={'transparent'}
                           onSubmitEditing={()=>{this.passwordField.focus();}}
@@ -239,12 +364,12 @@ if (!this.state.password == '') {
                             onEndEditing={this.passwordValid.bind(this)}
                             style={{ height: 70, flexWrap: 'wrap', color: 'black', fontSize: 20  }}
                             selectionColor={'#000000'}
-                            returnKeyType='next'
+                            returnKeyType='done'
                             ref={(input) => { this.passwordField = input; }}
                             maxLength={20}
                             enablesReturnKeyAutomatically={true}
                             underlineColorAndroid={'transparent'}
-                            onSubmitEditing={()=>{this.submit.bind(this);}}
+                            onSubmitEditing={this.submit.bind(this)}
                             secureTextEntry={this.state.showpwd}
                             onChangeText={(password) =>
                               {
@@ -269,7 +394,7 @@ if (!this.state.password == '') {
                 <View style={{ flex: 3, borderWidth: 0}}>
                   <View style={{ flex: 1, borderWidth: 0}}>
                   </View>
-                  <TouchableOpacity style={{ flex: 1.5, borderWidth: 0, backgroundColor: "#33cbf6", borderRadius: 5, alignItems:'center', justifyContent:'center'}}>
+                  <TouchableOpacity onPress={this.submit.bind(this)} style={{ flex: 1.5, borderWidth: 0, backgroundColor: "#33cbf6", borderRadius: 5, alignItems:'center', justifyContent:'center'}}>
                     <Text style={{color: "white", fontSize: 20, fontWeight: '500'}}>
                     SIGN UP
                     </Text>
@@ -301,7 +426,7 @@ if (!this.state.password == '') {
                   <View style={{ flex: 0.5, borderWidth: 0}}>
                   </View>
                   <View style={{ flex: 1, borderWidth: 0, flexDirection: "row"}}>
-                    <View style={{ flex: 1, borderWidth: 0, flexDirection: "row"}}>
+                    <View style={{ flex: 1.2, borderWidth: 0, flexDirection: "row"}}>
                     </View>
                     <TouchableOpacity style={{ flex: 0.8, borderWidth: 0, flexDirection: "row"}}>
                         <Image source={require('../assets/images/fb.png')} resizeMode='contain' style={{height:50, width:50}}/>
@@ -324,7 +449,12 @@ if (!this.state.password == '') {
             Already have an account? Login
           </Text>
         </TouchableOpacity>
+
       </View>
+        {this.spinnerComponent()}
+      </SafeAreaView>
+      
+
     );
   }
 }
