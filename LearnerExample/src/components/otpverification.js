@@ -9,112 +9,11 @@ class OtpVerification extends React.Component{
     mobileNumber:'',
     emailId:'',
     password:'',
-    showpwd: true,
-    errorMessage: '',
-    nameValidation: false,
-    emailValidation: false,
-    mobileValidation: false,
-    passwordValidation: false,
-    spinnerVisible: false,
-    validInputPassword: false,
-    validInputName: false,
-    validInputEmail: false,
-    validInputMobile: false,
     otpError: false,
     message: '',
     spinnermessage: ''
-
-
-  }
-  passwordToggle() {
-    this.setState({ showpwd: !this.state.showpwd })
   }
 
-  // Toggles password display
-  submit() {
-    dismissKeyboard()
-    console.log("####@@@@@");
-    if(this.firstNameValid())
-    {
-      console.log("firstNameValid");
-      if(this.mobileValid()){
-        console.log("mobileValid");
-        if(this.emailValid()){
-          console.log("emailValid",this.state.password.length);
-          if(this.passwordValid()){
-            this.signup()
-          }
-        }
-      }
-    }
-  }
-  pwdHideAndShow() {
-    if (this.state.showpwd == false) {
-      return (
-        <Image source={require('../assets/images/eyeclose.png')} resizeMode='contain' style={{height:20, width:20, marginBottom: 10}}/>
-      )
-    } else if (this.state.showpwd == true) {
-      return (
-        <Image source={require('../assets/images/eyeopen.png')} resizeMode='contain' style={{height:20, width:20, marginBottom: 10}}/>
-
-      )
-    }
-  }
-
-  validateName = (name) => {
-    var name = /^[a-zA-Z\s]+$/.test(name);
-    return name;
-  };
-
-  firstNameValid() {
-      if (!this.validateName(this.state.name)) {
-        this.setState({ nameValidation: true,  errorMessage: "Please enter a valid name", validInputName: false });
-        return false
-      }
-      else {
-        this.setState({ nameValidation: false, validInputName: true });
-        return true
-      }
-  }
-
-  emailValid() {
-    if (!this.validateEmail(this.state.emailId)) {
-      this.setState({ emailValidation: true, errorMessage: "Enter your valid Email ID", validInputEmail: false })
-      return false
-      console.log('Enter your valid Email Address');
-    } else {
-      this.setState({ emailValidation: false, validInputEmail: true });
-      return true
-    }
-}
-
-mobileValid(){
-  if(this.state.mobileNumber.length < 10 ){
-    this.setState({ mobileValidation: true, errorMessage: "Enter your valid mobile number", validInputMobile: false})
-    return false
-  }
-  else{
-      this.setState({ mobileValidation: false, validInputMobile: true });
-      return true
-  }
-}
-
-passwordValid() {
-  if (!this.validatePasswordStrength(this.state.password)) {
-    this.setState({ passwordValidation: true , errorMessage:"Password must contain at least 8 characters", validInputPassword: false});
-    return false
-    console.log("Password must contain at least 8 characters");
-  } else {
-    console.log("no errror");
-    this.setState({ passwordValidation: false, validInputPassword: true });
-    return true
-  }
-}
-
-  validateEmail = (email) => {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-  };
 
 
 
@@ -129,18 +28,6 @@ passwordValid() {
     }
 
 
-  validatePasswordStrength(password) {
-
-    if(this.state.password.length < 8 ||this.state.mobileNumber==''){
-      console.log("###@");
-      return false
-    }
-    else{
-      console.log("####!");
-      return true
-    }
-
-  }
 
   displayError() {
         this.setState({ spinnerVisibility: false });
@@ -168,9 +55,8 @@ passwordValid() {
   }
 
   submitotp(){
-    console.log("#@@@@");
+
     dismissKeyboard()
-    console.log("##@data***");
     this.setState({ spinnerVisible: true, otpError: false, message: '', spinnermessage: 'Verifying otp, please wait...' })
     var data = new FormData()
       data.append('otp', this.state.otp)
@@ -184,8 +70,6 @@ passwordValid() {
           })
           .then((response) => response.json())
           .then((responseData) => {
-            console.log('Fetch Success==================',responseData.status);
-            console.log(responseData);
             this.setState({ spinnerVisible: false })
           if (responseData.status == '1') {
             Alert.alert(
@@ -238,9 +122,7 @@ passwordValid() {
   }
 
   resendotp(){
-    console.log("#@@@@");
     dismissKeyboard()
-    console.log("##@data***");
     this.setState({ spinnerVisible: true, otpError: false, message: '', spinnermessage: 'Resending otp, please wait...' })
     var data = new FormData()
       data.append('mobileNumber', this.props.navigation.state.params.mobilenumber)
@@ -251,7 +133,6 @@ passwordValid() {
           })
           .then((response) => response.json())
           .then((responseData) => {
-            console.log('Fetch Success==================',responseData.status);
             console.log(responseData);
             this.setState({ spinnerVisible: false })
           if (responseData.status == '1') {
@@ -306,7 +187,6 @@ passwordValid() {
 
 
   render(){
-    console.log("REnderrrr");
     return(
       <View style={{ flex: 1}}>
       <TouchableWithoutFeedback onPress={()=>{dismissKeyboard();}}>
