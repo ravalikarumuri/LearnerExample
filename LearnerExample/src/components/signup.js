@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity , TextInput, Image, ActivityIndicator, SafeAreaView, Alert} from 'react-native';
+import { View, Text, TouchableOpacity , TextInput, Image, ActivityIndicator, SafeAreaView, Alert, TouchableWithoutFeedback} from 'react-native';
 var dismissKeyboard = require('dismissKeyboard');
 import {OtpVerification} from './'
 
@@ -30,14 +30,10 @@ class Signup extends React.Component{
   // Toggles password display
   submit() {
     dismissKeyboard()
-    console.log("####@@@@@");
     if(this.firstNameValid())
     {
-      console.log("firstNameValid");
       if(this.mobileValid()){
-        console.log("mobileValid");
         if(this.emailValid()){
-          console.log("emailValid",this.state.password.length);
           if(this.passwordValid()){
             this.signup()
           }
@@ -102,7 +98,6 @@ passwordValid() {
     return false
     console.log("Password must contain at least 8 characters");
   } else {
-    console.log("no errror");
     this.setState({ passwordValidation: false, validInputPassword: true });
     return true
   }
@@ -129,11 +124,9 @@ passwordValid() {
   validatePasswordStrength(password) {
 
     if(this.state.password.length < 8 ||this.state.mobileNumber==''){
-      console.log("###@");
       return false
     }
     else{
-      console.log("####!");
       return true
     }
 
@@ -166,7 +159,6 @@ passwordValid() {
 
   signup(){
     dismissKeyboard()
-    console.log("##@data***");
     this.setState({ spinnerVisible: true })
     var data = new FormData()
       data.append('name', this.state.name)
@@ -182,11 +174,9 @@ passwordValid() {
           })
           .then((response) => response.json())
           .then((responseData) => {
-            console.log('Fetch Success==================');
-            console.log(responseData);
             this.setState({ spinnerVisible: false })
           if (responseData.status == '1') {
-
+            this.props.navigation.navigate('OtpVerification',{mobilenumber:this.state.mobileNumber});
 
           }
           else if(responseData.status == '3'){
@@ -240,8 +230,11 @@ passwordValid() {
 
   render(){
     return(
-      <SafeAreaView style={{ flex: 1}}>
-      <View style={{ flex: 1, marginTop:0, borderWidth: 5}}>
+      <View style={{ flex: 1}}>
+      <TouchableWithoutFeedback onPress={()=>{dismissKeyboard();}}>
+      <SafeAreaView style={{ flex: 1}} accessible={false}>
+
+      <View style={{ flex: 1, marginTop:0, borderWidth: 0}}>
         <View style={{ flex: 1, marginHorizontal:30}}>
             <View style={{ flex: 1.5, borderWidth: 0}}>
               <View style={{ flex: 1, borderWidth: 0}}>
@@ -277,7 +270,7 @@ passwordValid() {
                           placeholder="Name"
                           placeholderTextColor="#7f7f7f"
                           style={{ height: 70, flexWrap: 'wrap', color: 'black', fontSize: 20  }}
-                          selectionColor={'#000000'}
+                          selectionColor={'#33cbf6'}
                           maxLength={35}
                           enablesReturnKeyAutomatically={true}
                           underlineColorAndroid={'transparent'}
@@ -294,8 +287,8 @@ passwordValid() {
                     </View>
                     <View style={{ flex:1, borderWidth: 0, flexDirection: 'row'}}>
                       <View style={{ flex:0.3, backgroundColor: "white", borderWidth: 0, borderBottomColor: '#D3D3D3', borderBottomWidth: 0.5 }}>
-                        <View style={{ flex:1, borderWidth: 0, justifyContent: 'flex-end', marginBottom: 18}}>
-                          <Text style={{color:"#7f7f7f", fontSize: 15}}>
+                        <View style={{ flex:1, borderWidth: 0, justifyContent: 'flex-end', marginBottom: 10}}>
+                          <Text style={{color:"#7f7f7f", fontSize: 18}}>
                             IND +91
                           </Text>
                         </View>
@@ -311,7 +304,7 @@ passwordValid() {
                             placeholder="Mobile Number"
                             placeholderTextColor="#7f7f7f"
                             style={{ height: 70, flexWrap: 'wrap', color: 'black', fontSize: 20  }}
-                            selectionColor={'#000000'}
+                            selectionColor={'#33cbf6'}
                             returnKeyType='next'
                             enablesReturnKeyAutomatically={true}
                             underlineColorAndroid={'transparent'}
@@ -338,7 +331,7 @@ passwordValid() {
                           ref={(input) => { this.emailId = input; }}
                           onEndEditing={this.emailValid.bind(this)}
                           style={{ height: 70, flexWrap: 'wrap', color: 'black', fontSize: 20  }}
-                          selectionColor={'#000000'}
+                          selectionColor={'#33cbf6'}
                           returnKeyType='next'
                           enablesReturnKeyAutomatically={true}
                           underlineColorAndroid={'transparent'}
@@ -363,7 +356,7 @@ passwordValid() {
                             placeholderTextColor="#7f7f7f"
                             onEndEditing={this.passwordValid.bind(this)}
                             style={{ height: 70, flexWrap: 'wrap', color: 'black', fontSize: 20  }}
-                            selectionColor={'#000000'}
+                            selectionColor={'#33cbf6'}
                             returnKeyType='done'
                             ref={(input) => { this.passwordField = input; }}
                             maxLength={20}
@@ -452,8 +445,11 @@ passwordValid() {
 
       </View>
         {this.spinnerComponent()}
+
       </SafeAreaView>
-      
+      </TouchableWithoutFeedback>
+      </View>
+
 
     );
   }
